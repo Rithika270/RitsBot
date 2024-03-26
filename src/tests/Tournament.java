@@ -12,7 +12,7 @@ import rts.PlayerAction;
 import rts.units.UnitTypeTable;
 import javax.swing.*;
 
-import MicroBot.RitsBot;
+import RitsBot.RitsBot;
 
 import java.util.*;
 import java.util.stream.Collectors;

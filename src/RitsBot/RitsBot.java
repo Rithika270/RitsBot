@@ -1,4 +1,4 @@
-package MicroBot;
+package RitsBot;
 
 import java.util.ArrayList;
 import java.util.Comparator;
