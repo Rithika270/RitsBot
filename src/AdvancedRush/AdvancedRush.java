@@ -57,13 +57,21 @@ public class AdvancedRush extends AbstractionLayerAI {
         }
 
         private UnitType chooseUnit() {
-            if (player.getResources() >= heavyType.cost) {
-                return heavyType;
-            } else if (player.getResources() >= rangedType.cost) {
-                return lightType;
-            }
+            // Adjust unit production based on opponent's composition
+            int enemyRangedUnits = countEnemyUnitsOfType("Ranged");
+            int enemyLightUnits = countEnemyUnitsOfType("Light");
 
-            return heavyType;
+            if (enemyRangedUnits > enemyLightUnits) {
+                if (player.getResources() >= rangedType.cost) {
+                    return rangedType;
+                }
+            } else {
+                if (player.getResources() >= lightType.cost) {
+                    return lightType;
+                }
+            }
+            // Default to light units if resources are insufficient
+            return lightType;
         }
     }
 
@@ -239,6 +247,11 @@ public class AdvancedRush extends AbstractionLayerAI {
         new Heavy();
 
         return translateActions(_player, gameState);
+    }
+
+    public int countEnemyUnitsOfType(String string) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'countEnemyUnitsOfType'");
     }
 
     private void assignUnit(Unit u, List<Unit> bases, List<Unit> barracks, List<Unit> workers, List<Unit> lights,

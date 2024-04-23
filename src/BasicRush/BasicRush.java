@@ -68,12 +68,11 @@ public class BasicRush extends AbstractionLayerAI {
     /*
      * Worker Behavior
      */
-    private List<Unit> harvesters = new ArrayList<>();
 
     private class Workers {
         public Workers() {
-            // Remove harvesters that are dead
-            harvesters.removeIf(worker -> !workers.contains(worker));
+            // Remove workers that are dead
+            workers.removeIf(worker -> !units.contains(worker));
 
             workers.forEach(worker -> {
                 if (worker.isIdle(game))
@@ -82,48 +81,24 @@ public class BasicRush extends AbstractionLayerAI {
         }
 
         private void assignTask(Unit worker) {
-            Unit base = findClosest(bases, worker);
             Unit enemy = findClosest(_units, worker);
 
             if (enemy == null)
                 return;
 
-            // Attack if our base is destroyed or the enemy is close
-            if (base == null || distance(worker, enemy) <= worker.getAttackRange() + 1) {
-                harvesters.removeIf(harvester -> harvester == worker);
+            // Attack enemy units if in range
+            if (worker.getAttackRange() > 0 && distance(worker, enemy) <= worker.getAttackRange()) {
                 attack(worker, enemy);
                 return;
             }
 
-            // Find close (half the board size in distance) our base
-            List<Unit> closeResources = findUnitsWithin(resources, base,
-                    (int) Math.floor(Math.sqrt(board.getWidth() * board.getHeight()) / 2));
-
-            // Condition 1: If there are resources near our base or the worker is carrying
-            // resources
-            // Condition 2: If there are less than 2 harvesters or the worker is already a
-            // harvester
-            if ((closeResources.size() > 0 || worker.getResources() > 0)
-                    && (harvesters.size() < 2 || harvesters.contains(worker))) {
-                if (!harvesters.contains(worker))
-                    harvesters.add(worker);
-
-                Unit resource = findClosest(closeResources, worker);
-                harvest(worker, resource, base);
-                return;
-            }
-
-            // Attack if not harvesting
-            attack(worker, enemy);
+            // Move towards the enemy if not in range
+            move(worker, enemy.getX(), enemy.getY());
         }
     }
 
     private Unit findClosest(List<Unit> units, Unit reference) {
         return units.stream().min(Comparator.comparingInt(u -> distance(u, reference))).orElse(null);
-    }
-
-    private List<Unit> findUnitsWithin(List<Unit> units, Unit reference, int distance) {
-        return units.stream().filter(u -> distance(u, reference) <= distance).collect(Collectors.toList());
     }
 
     private int distance(Unit u1, Unit u2) {
