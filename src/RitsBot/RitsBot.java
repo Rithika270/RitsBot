@@ -46,19 +46,12 @@ public class RitsBot extends AbstractionLayerAI {
         }
 
         private void assignTask(Unit base) {
-            boolean isBarracksBuilding = builders.size() > 0
-                    && builders.get(0).getUnitActions(game).get(0).getType() == UnitAction.TYPE_PRODUCE;
-            List<Unit> enemiesWithinHalfBoard = findUnitsWithin(_units, base,
-                    (int) Math.floor(Math.sqrt(board.getWidth() * board.getHeight()) / 2));
-            boolean shouldTrain = (barracks.size() == 0
-                    && !isBarracksBuilding && workers.size() > 2
-                    && enemiesWithinHalfBoard.size() == 0)
-                            ? player.getResources() >= BARRACKS.cost + WORKER.cost
-                            : player.getResources() >= WORKER.cost;
-
-            if (shouldTrain && defenders.size() == 0) {
-                
+            if (player.getResources() >= WORKER.cost && bases.size() < 2) {
                 train(base, WORKER);
+                return;
+            }
+            if (player.getResources() >= BARRACKS.cost && barracks.size() == 0) {
+                train(base, BARRACKS);
                 return;
             }
         }
@@ -80,6 +73,46 @@ public class RitsBot extends AbstractionLayerAI {
             if (player.getResources() >= LIGHT.cost) {
                 train(barrack, LIGHT);
                 return;
+            }
+        }
+    }
+
+    private class AttackStrategy {
+        public AttackStrategy() {
+            List<Unit> enemyBases = _bases.stream().filter(enemyBase -> !enemyBase.getType().canMove).collect(Collectors.toList());
+            List<Unit> enemyBarracks = _barracks.stream().filter(enemyBarrack -> !enemyBarrack.getType().canMove).collect(Collectors.toList());
+            List<Unit> enemyUnits = _units.stream().filter(enemyUnit -> enemyUnit.getType().canMove).collect(Collectors.toList());
+    
+            // Prioritize attacking enemy bases
+            if (!enemyBases.isEmpty()) {
+                for (Unit unit : units) {
+                    attack(unit, findClosest(enemyBases, unit));
+                }
+                return;
+            }
+    
+            // Prioritize attacking enemy barracks if no bases are present
+            if (!enemyBarracks.isEmpty()) {
+                for (Unit unit : units) {
+                    attack(unit, findClosest(enemyBarracks, unit));
+                }
+                return;
+            }
+    
+            // If no enemy bases or barracks, attack enemy units
+            for (Unit unit : units) {
+                if (!enemyUnits.isEmpty()) {
+                    Unit closestEnemy = findClosest(enemyUnits, unit);
+                    if (closestEnemy != null) {
+                        attack(unit, closestEnemy);
+                    }
+                } else {
+                    // If no enemy units, attack any enemy structure
+                    Unit closestEnemy = findClosest(_units, unit);
+                    if (closestEnemy != null) {
+                        attack(unit, closestEnemy);
+                    }
+                }
             }
         }
     }
