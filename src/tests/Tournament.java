@@ -12,6 +12,10 @@ import rts.PlayerAction;
 import rts.units.UnitTypeTable;
 import javax.swing.*;
 
+import BaluBot.BaluBot;
+import DinkleBot.DinkleBot;
+import HSBot.HSBot;
+import LasyaBot.LasyaBot;
 import RitsBot.RitsBot;
 
 import java.util.*;
@@ -31,16 +35,16 @@ public class Tournament {
 
     private static void getTournamentPlayers() {
         // players.add(new PassiveAI(utt));
-        // players.add(new RandomAI(utt));
+        //players.add(new RandomAI(utt));
         // players.add(new RandomBiasedAI(utt));
         // players.add(new HeavyRush(utt));
         // players.add(new LightDefense(utt));
-        // players.add(new WorkerDefense(utt));
-        // players.add(new WorkerRush(utt));
-        // players.add(new CoacAI(utt));
-        // players.add(new BasicRush(utt));
+        //players.add(new WorkerDefense(utt));
+        players.add(new BaluBot(utt));
+        //players.add(new DinkleBot(utt));
+        players.add(new LasyaBot(utt));
         players.add(new mayari(utt));
-        // players.add(new ObiBotKenobi(utt));
+        players.add(new HSBot(utt));
         players.add(new RitsBot(utt));
     }
 
